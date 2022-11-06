@@ -1,26 +1,28 @@
 import React from 'react';
-import logo from './logo.svg';
+import { Routes, Route } from 'react-router-dom';
 import './App.css';
+import UserContext from './context/UserContext';
+import CreateVM from './pages/CreateVM';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Error from './pages/Error';
+import Layout from './pages/Layout';
+import VM from './pages/VM';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    return (
+        <UserContext>
+            <Routes>
+                <Route path='/login' element={<Login />} />
+                <Route path='/' element={<Layout />}>
+                    <Route index element={<Home />} />
+                    <Route path='create-vm' element={<CreateVM />} />
+                    <Route path='vm/:name' element={<VM />} />
+                </Route>
+                <Route path='*' element={<Error />} />
+            </Routes>
+        </UserContext>
+    );
 }
 
 export default App;
