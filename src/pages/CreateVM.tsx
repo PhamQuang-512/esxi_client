@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import Loading from '../components/Loading';
 import { userContext } from '../context/UserContext';
 
 const Container = styled.div`
@@ -29,6 +28,7 @@ const Form = styled.form`
             padding: 0 12px;
             outline: none;
             border: 1px solid #cbcbcb;
+            font-size: inherit;
         }
     }
 `;
@@ -54,6 +54,7 @@ const CreateVM = () => {
     const [ram, setRam] = useState<number>(0);
     const [storage, setStorage] = useState<number>(0);
     const [creating, setCreating] = useState<boolean>(false);
+    const navigate = useNavigate();
     const { user } = useContext(userContext);
 
     if (!user) return <Navigate to='/login' />;
@@ -64,6 +65,7 @@ const CreateVM = () => {
             setCreating(true);
 
             console.log(name, os, cpu, ram, storage);
+            // navigate(`/vm/${name}`);
         } catch (error) {
             console.log(error);
         } finally {
@@ -87,6 +89,7 @@ const CreateVM = () => {
                                 setName(e.target.value.trim())
                             }
                             required
+                            disabled={creating}
                         />
                     </div>
 
@@ -100,6 +103,7 @@ const CreateVM = () => {
                             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                                 setOs(e.target.value)
                             }
+                            disabled={creating}
                         >
                             <option value=''>--Choose an operating system--</option>
                             <option value='Window'>Window</option>
@@ -117,6 +121,7 @@ const CreateVM = () => {
                             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                                 setCpu(parseInt(e.target.value))
                             }
+                            disabled={creating}
                         >
                             <option value=''>--Choose vCPU--</option>
                             <option value='1'>1</option>
@@ -135,6 +140,7 @@ const CreateVM = () => {
                             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                                 setRam(parseInt(e.target.value))
                             }
+                            disabled={creating}
                         >
                             <option value=''>--Choose Ram--</option>
                             <option value='2'>2GB</option>
@@ -157,13 +163,14 @@ const CreateVM = () => {
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                 setStorage(parseInt(e.target.value))
                             }
+                            disabled={creating}
                         />
                     </div>
 
                     <Button className='btn' type='submit' disabled={creating}>
                         Submit
                     </Button>
-                    {creating && <Loading />}
+                    {creating && 'Creating...'}
                 </Form>
             </FormContainer>
         </Container>

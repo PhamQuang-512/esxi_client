@@ -6,7 +6,7 @@ import { HiOutlineCheckCircle } from 'react-icons/hi';
 import { userContext } from '../context/UserContext';
 
 const TableContainer = styled.div`
-    padding: 0 12px;
+    margin: 0 12px;
 `;
 
 const Heading = styled.h1`
@@ -60,7 +60,6 @@ const Home = () => {
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th>IP</th>
                             <th>Status</th>
                             <th>Operating system</th>
                             <th>vCPU</th>
@@ -73,9 +72,8 @@ const Home = () => {
                             <td>
                                 <Link to={`/vm/${'deptrai'}`}>dep trai</Link>
                             </td>
-                            <td>192.168.1.1</td>
                             <td style={{ color: 'green' }}>
-                                <HiOutlineCheckCircle /> On
+                                <HiOutlineCheckCircle /> Running
                             </td>
                             <td>Window</td>
                             <td>4</td>
@@ -86,7 +84,6 @@ const Home = () => {
                             <td>
                                 <Link to={`/vm/${'deptrai12222'}`}>dep trai 1 2 2 2 2 22 </Link>
                             </td>
-                            <td>192.168.1.1</td>
                             <td>
                                 <RiIndeterminateCircleLine /> Terminated
                             </td>
