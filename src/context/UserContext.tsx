@@ -4,15 +4,16 @@ export const user = '';
 
 export const userContext = createContext({
     user,
-    login: (user: string) => {},
+    login: (user: string, accessToken: string) => {},
     logout: () => {},
 });
 
 const UserContext = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<string>(localStorage.getItem('user') || '');
 
-    const login = (user: string) => {
+    const login = (user: string, accessToken: string) => {
         localStorage.setItem('user', user);
+        localStorage.setItem('accessToken', accessToken);
         setUser(user);
     };
 

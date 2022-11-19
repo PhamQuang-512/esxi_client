@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { AiOutlineCloseCircle } from 'react-icons/ai';
 import { isAxiosError } from '../api/axios';
+import { editVMCPURam, editVMHardDisk } from '../api/vm';
+import Loading from './Loading';
 
 const Container = styled.div`
+    z-index: 100;
     position: fixed;
     top: 0;
     bottom: 0;
@@ -79,37 +82,41 @@ const FormContainer = styled.div`
 `;
 
 interface Props {
-    setVmName: React.Dispatch<string>;
-    setOs: React.Dispatch<string>;
-    setCpu: React.Dispatch<number>;
-    setRam: React.Dispatch<number>;
-    setStorage: React.Dispatch<number>;
+    name: string;
+    numCPU: number;
+    ramGB: number;
     minStorage: number;
     close: () => void;
 }
 
-const VMEdit = ({ setVmName, setOs, setCpu, setRam, setStorage, minStorage, close }: Props) => {
-    const [editName, setEditName] = useState<string>('');
-    const [editOs, setEditOs] = useState<string>('');
-    const [editCpu, setEditCpu] = useState<number>(0);
-    const [editRam, setEditRam] = useState<number>(0);
-    const [editStorage, setEditStorage] = useState<number>(minStorage);
+const VMEdit = ({ name, numCPU, ramGB, minStorage, close }: Props) => {
+    const [hardDisk, setHardDisk] = useState<number>(minStorage);
+    const [cpu_ram, setCpu_ram] = useState({
+        numCPU: numCPU,
+        ramGB: ramGB,
+    });
     const [errMessage, setErrMessage] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
 
     const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            if (editName) setVmName(editName);
-            if (editOs) setOs(editOs);
-            if (editCpu) setCpu(editCpu);
-            if (editRam) setRam(editRam);
-            if (editStorage) setStorage(editStorage);
+            setLoading(true);
+            if (hardDisk !== minStorage) await editVMHardDisk(name, hardDisk);
+
+            if (cpu_ram.numCPU !== numCPU || cpu_ram.ramGB !== ramGB)
+                await editVMCPURam(name, cpu_ram.numCPU, cpu_ram.ramGB);
+
             close();
         } catch (error) {
             if (isAxiosError(error)) {
-                const data = error.response?.data;
-                console.log(data);
+                setErrMessage(error.response?.data.error);
+            } else {
+                setErrMessage('Unknow error!!!');
             }
+            console.log(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -122,45 +129,16 @@ const VMEdit = ({ setVmName, setOs, setCpu, setRam, setStorage, minStorage, clos
                 <h1>Edit</h1>
                 <form onSubmit={onFormSubmit}>
                     <div>
-                        <label htmlFor='name'>Virtual machine name:</label>
-                        <input
-                            type='text'
-                            id='name'
-                            name='name'
-                            value={editName}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                setEditName(e.target.value)
-                            }
-                        />
-                    </div>
-
-                    <div>
-                        <label htmlFor='os'>Operating system:</label>
-                        <select
-                            name='os'
-                            id='os'
-                            value={editOs}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                                setEditOs(e.target.value)
-                            }
-                        >
-                            <option value=''>--Choose an operating system--</option>
-                            <option value='Window'>Window</option>
-                            <option value='Ubuntu'>Ubuntu</option>
-                        </select>
-                    </div>
-
-                    <div>
                         <label htmlFor='cpu'>Cpu:</label>
                         <select
                             name='vCpu'
                             id='vCpu'
-                            value={editCpu}
+                            value={cpu_ram.numCPU}
                             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                                setEditCpu(parseInt(e.target.value))
+                                setCpu_ram({ ...cpu_ram, numCPU: parseInt(e.target.value) })
                             }
                         >
-                            <option value=''>--Choose vCPU--</option>
+                            <option>--Choose vCPU--</option>
                             <option value='1'>1</option>
                             <option value='2'>2</option>
                             <option value='4'>4</option>
@@ -172,12 +150,12 @@ const VMEdit = ({ setVmName, setOs, setCpu, setRam, setStorage, minStorage, clos
                         <select
                             name='ram'
                             id='ram'
-                            value={editRam}
+                            value={cpu_ram.ramGB}
                             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                                setEditRam(parseInt(e.target.value))
+                                setCpu_ram({ ...cpu_ram, ramGB: parseInt(e.target.value) })
                             }
                         >
-                            <option value=''>--Choose Ram--</option>
+                            <option>--Choose Ram--</option>
                             <option value='2'>2GB</option>
                             <option value='4'>4GB</option>
                             <option value='6'>6GB</option>
@@ -192,11 +170,15 @@ const VMEdit = ({ setVmName, setOs, setCpu, setRam, setStorage, minStorage, clos
                             id='storage'
                             name='storage'
                             min={minStorage}
-                            value={editStorage}
+                            value={hardDisk}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                setEditStorage(parseInt(e.target.value))
+                                setHardDisk(parseInt(e.target.value))
                             }
                         />
+                    </div>
+
+                    <div>
+                        <p style={{ color: 'red' }}>{errMessage}</p>
                     </div>
 
                     <div className='btnGroup'>
@@ -207,6 +189,7 @@ const VMEdit = ({ setVmName, setOs, setCpu, setRam, setStorage, minStorage, clos
                     </div>
                 </form>
             </FormContainer>
+            {loading && <Loading />}
         </Container>
     );
 };

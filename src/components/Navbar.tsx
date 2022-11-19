@@ -70,11 +70,7 @@ const Navbar = () => {
     return (
         <Container>
             <div>
-                <NavLink
-                    className={({ isActive }) => (isActive ? 'isActive' : '')}
-                    to={'/'}
-                    end={true}
-                >
+                <NavLink className={({ isActive }) => (isActive ? 'isActive' : '')} to={'/vm'}>
                     Home
                 </NavLink>
                 <NavLink

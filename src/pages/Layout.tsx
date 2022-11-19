@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Navbar from '../components/Navbar';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Navigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { userContext } from '../context/UserContext';
 
 const Container = styled.div`
     display: grid;
@@ -9,6 +10,10 @@ const Container = styled.div`
 `;
 
 const Layout = () => {
+    const { user } = useContext(userContext);
+
+    if (!user) return <Navigate to='/login' />;
+
     return (
         <Container>
             <Navbar />

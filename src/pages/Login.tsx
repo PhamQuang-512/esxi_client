@@ -6,6 +6,7 @@ import { AiOutlineUser } from 'react-icons/ai';
 import { RiLockPasswordLine } from 'react-icons/ri';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { userContext } from '../context/UserContext';
+import api from '../api/axios';
 
 const Container = styled.div`
     width: 100%;
@@ -116,10 +117,13 @@ const Login = () => {
         try {
             e.preventDefault();
 
-            console.log(userName);
-            console.log(password);
+            const response = await api.post('/authen/sign_in', {
+                username: userName,
+                password: password,
+            });
+            console.log(response.data);
 
-            login(userName);
+            login(response.data.username, response.data.accessToken);
             navigate('/');
         } catch (error) {}
     };

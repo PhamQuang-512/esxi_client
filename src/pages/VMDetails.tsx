@@ -5,12 +5,20 @@ import styled from 'styled-components';
 import { AiOutlineCopy } from 'react-icons/ai';
 import { GrVirtualMachine } from 'react-icons/gr';
 import VMEdit from '../components/VMEdit';
+import VM from '../model/VM';
+import { deleteVM, editVMState, getVM } from '../api/vm';
+import { isAxiosError } from '../api/axios';
+import Loading from '../components/Loading';
 
 const Container = styled.div`
     margin: 0 12px;
 
     button {
         cursor: pointer;
+    }
+
+    button + button {
+        margin-left: 12px;
     }
 
     .edit-enter {
@@ -26,6 +34,22 @@ const Container = styled.div`
     .edit-exit-active {
         opacity: 0;
         transition: opacity 300ms;
+    }
+
+    .editBtn {
+        outline: none;
+        padding: 8px 12px;
+        background-color: var(--main-color);
+        color: white;
+        border: none;
+    }
+
+    .deleteBtn {
+        outline: none;
+        padding: 8px 12px;
+        background-color: red;
+        color: white;
+        border: none;
     }
 `;
 
@@ -96,46 +120,87 @@ const Info = styled.div`
 const VMDetails = () => {
     const ipRef = useRef<HTMLParagraphElement>(null);
     const { name } = useParams();
-    const [vmName, setVmName] = useState<string>(name || '');
-    const [ip, setIp] = useState<string>('192.168.0.1');
-    const [os, setOs] = useState<string>('Ubuntu');
-    const [cpu, setCpu] = useState<number>(2);
-    const [ram, setRam] = useState<number>(6);
-    const [storage, setStorage] = useState<number>(32);
+    const [VM, setVM] = useState<VM | null>(null);
     const [showEdit, setShowEdit] = useState<boolean>(false);
     const [errMessage, setErrMessage] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
 
-    const onTurnOn = async () => {
-        console.log('turn on');
+    const getInfo = React.useCallback(async () => {
+        try {
+            setLoading(true);
+            const data = await getVM(name as string);
+            setVM(data);
+            console.log(data);
+        } catch (error) {
+            if (isAxiosError(error)) {
+                setErrMessage(error.response?.data.error);
+            } else {
+                setErrMessage('Unknow error!!!');
+            }
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    }, [name]);
+
+    const changeVMState = async (state: 'PowerdOn' | 'PoweredOff' | 'Suspended') => {
+        try {
+            setLoading(true);
+            const data = await editVMState(name as string, state);
+
+            console.log(data);
+        } catch (error) {
+            if (isAxiosError(error)) {
+                setErrMessage(error.response?.data.error);
+            } else {
+                setErrMessage('Unknow error!!!');
+            }
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const onSuspend = async () => {
-        console.log('suspend');
-    };
+    const onDeleteVM = async () => {
+        try {
+            setLoading(true);
+            const data = await deleteVM(name as string);
 
-    const onShutdown = async () => {
-        console.log('shutdown');
+            console.log(data);
+        } catch (error) {
+            if (isAxiosError(error)) {
+                setErrMessage(error.response?.data.error);
+            } else {
+                setErrMessage('Unknow error!!!');
+            }
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     //TODO: axios get vm info, catch error
     useEffect(() => {
+        getInfo();
+
         return () => {};
-    }, []);
+    }, [getInfo]);
 
     return (
         <Container>
             <CSSTransition in={showEdit} mountOnEnter unmountOnExit timeout={300} classNames='edit'>
                 {(state) => (
                     <div>
-                        <VMEdit
-                            setVmName={setVmName}
-                            setCpu={setCpu}
-                            setOs={setOs}
-                            setRam={setRam}
-                            setStorage={setStorage}
-                            minStorage={storage}
-                            close={() => setShowEdit(false)}
-                        />
+                        <div style={{ position: 'relative' }}>
+                            <VMEdit
+                                name={name as string}
+                                numCPU={VM?.numCPU as number}
+                                ramGB={VM?.ramGB as number}
+                                minStorage={VM?.storage as number}
+                                close={() => setShowEdit(false)}
+                            />
+                        </div>
+                        {loading && <Loading />}
                     </div>
                 )}
             </CSSTransition>
@@ -143,20 +208,20 @@ const VMDetails = () => {
                 <h1>
                     <GrVirtualMachine size={30} />
 
-                    {vmName}
+                    {VM?.name}
                 </h1>
                 <div>
                     <div>
-                        Status: <div className='status'>Running</div>
+                        Status: <div className='status'>{VM?.state}</div>
                     </div>
                     <div className='btnGroup'>
-                        <button className='btnTurnOn' onClick={() => onTurnOn()}>
+                        <button className='btnTurnOn' onClick={() => changeVMState('PowerdOn')}>
                             Turn on
                         </button>
-                        <button className='btnSuspend' onClick={() => onSuspend()}>
+                        <button className='btnSuspend' onClick={() => changeVMState('Suspended')}>
                             Suspend
                         </button>
-                        <button className='btnShutdown' onClick={() => onShutdown()}>
+                        <button className='btnShutdown' onClick={() => changeVMState('Suspended')}>
                             Shutdown
                         </button>
                     </div>
@@ -165,9 +230,9 @@ const VMDetails = () => {
             <Info>
                 <div>
                     IPv4:{' '}
-                    {ip && (
+                    {VM?.ip && (
                         <>
-                            <p ref={ipRef}>{ip}</p>
+                            <p ref={ipRef}>{VM.ip}</p>
                             <AiOutlineCopy
                                 size={20}
                                 className='copyBtn'
@@ -175,7 +240,7 @@ const VMDetails = () => {
                                     if (ipRef.current !== null) {
                                         console.log(ipRef.current.innerHTML);
                                         navigator.clipboard
-                                            .writeText(ip)
+                                            .writeText(VM.ip)
                                             .then(() => alert('ip copied'))
                                             .catch(console.log);
                                     }
@@ -186,20 +251,30 @@ const VMDetails = () => {
                 </div>
 
                 <div>
-                    Operating system: <p>{os}</p>
+                    Operating system: <p>{VM?.os}</p>
                 </div>
                 <div>
-                    vCPU: <p>{cpu}</p>
+                    vCPU: <p>{VM?.numCPU}</p>
                 </div>
                 <div>
-                    Ram: <p>{ram}GB</p>
+                    Ram: <p>{VM?.ramGB}GB</p>
                 </div>
                 <div>
-                    Storage: <p>{storage}GB</p>
+                    Storage: <p>{VM?.storage}GB</p>
                 </div>
             </Info>
+            <div style={{ float: 'right' }}>
+                <button className='editBtn' onClick={() => setShowEdit(true)}>
+                    Edit virtual machine
+                </button>
+
+                <button className='deleteBtn' onClick={() => onDeleteVM()}>
+                    Delete virtual machine
+                </button>
+            </div>
+
             <div>
-                <button onClick={() => setShowEdit(true)}>Edit virtual machine</button>
+                <p style={{ color: 'red' }}>{errMessage}</p>
             </div>
         </Container>
     );

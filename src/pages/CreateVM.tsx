@@ -1,7 +1,9 @@
 import React, { useContext, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { createVM } from '../api/vm';
 import { userContext } from '../context/UserContext';
+import { VMCreate } from '../model/VM';
 
 const Container = styled.div`
     position: relative;
@@ -48,28 +50,33 @@ const Button = styled.button`
 `;
 
 const CreateVM = () => {
-    const [name, setName] = useState<string>('');
-    const [os, setOs] = useState<string>('');
-    const [cpu, setCpu] = useState<number>(0);
-    const [ram, setRam] = useState<number>(0);
-    const [storage, setStorage] = useState<number>(0);
-    const [creating, setCreating] = useState<boolean>(false);
+    const [vmInfo, setVmInfo] = useState<VMCreate>({
+        name: '',
+        os: '',
+        numCPU: 0,
+        ramGB: 0,
+        storage: 0,
+    });
+    const [creating, setCreating] = useState(false);
     const navigate = useNavigate();
     const { user } = useContext(userContext);
 
     if (!user) return <Navigate to='/login' />;
 
-    const onFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
             setCreating(true);
 
-            console.log(name, os, cpu, ram, storage);
-            // navigate(`/vm/${name}`);
+            const data = await createVM(vmInfo);
+            console.log(data);
+
+            console.log(vmInfo);
+            navigate(`/vm/${vmInfo.name}`);
         } catch (error) {
             console.log(error);
         } finally {
-            setTimeout(() => setCreating(false), 3000);
+            setCreating(false);
         }
     };
 
@@ -84,9 +91,12 @@ const CreateVM = () => {
                         <input
                             id='name'
                             type='text'
-                            value={name}
+                            value={vmInfo.name}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                setName(e.target.value.trim())
+                                setVmInfo({
+                                    ...vmInfo,
+                                    name: e.target.value.trim(),
+                                })
                             }
                             required
                             disabled={creating}
@@ -99,9 +109,12 @@ const CreateVM = () => {
                             name='os'
                             id='os'
                             required
-                            value={os}
+                            value={vmInfo.os}
                             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                                setOs(e.target.value)
+                                setVmInfo({
+                                    ...vmInfo,
+                                    os: e.target.value,
+                                })
                             }
                             disabled={creating}
                         >
@@ -117,9 +130,12 @@ const CreateVM = () => {
                             name='vCpu'
                             id='vCpu'
                             required
-                            value={cpu}
+                            value={vmInfo.numCPU}
                             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                                setCpu(parseInt(e.target.value))
+                                setVmInfo({
+                                    ...vmInfo,
+                                    numCPU: parseInt(e.target.value),
+                                })
                             }
                             disabled={creating}
                         >
@@ -136,9 +152,12 @@ const CreateVM = () => {
                             name='ram'
                             id='ram'
                             required
-                            value={ram}
+                            value={vmInfo.ramGB}
                             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                                setRam(parseInt(e.target.value))
+                                setVmInfo({
+                                    ...vmInfo,
+                                    ramGB: parseInt(e.target.value),
+                                })
                             }
                             disabled={creating}
                         >
@@ -155,13 +174,20 @@ const CreateVM = () => {
                         <input
                             type='number'
                             required
-                            min={os === 'Ubuntu' ? 8 : os === 'Window' ? 32 : 0}
+                            min={vmInfo.os === 'Ubuntu' ? 8 : vmInfo.os === 'Window' ? 32 : 0}
                             placeholder={
-                                os === 'Ubuntu' ? 'Min: 8GB' : os === 'Window' ? 'Min: 32GB' : ''
+                                vmInfo.os === 'Ubuntu'
+                                    ? 'Min: 8GB'
+                                    : vmInfo.os === 'Window'
+                                    ? 'Min: 32GB'
+                                    : ''
                             }
-                            value={storage}
+                            value={vmInfo.storage}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                setStorage(parseInt(e.target.value))
+                                setVmInfo({
+                                    ...vmInfo,
+                                    storage: parseInt(e.target.value),
+                                })
                             }
                             disabled={creating}
                         />
