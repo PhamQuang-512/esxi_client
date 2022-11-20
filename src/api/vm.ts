@@ -31,9 +31,9 @@ export const createVM = async (vmInfo: VMCreate) => {
     return response.data;
 };
 
-export const editVMState = async (name: string, state: 'PowerdOn' | 'PoweredOff' | 'Suspended') => {
+export const editVMState = async (name: string, state: 'PoweredOn' | 'PoweredOff' | 'Suspended') => {
     const response = await api.put(
-        `/VMs/${name}`,
+        `/VMs/${name}/state`,
         {
             state,
         },
@@ -89,3 +89,4 @@ export const deleteVM = async (name: string) => {
 
     return response.data;
 };
+
