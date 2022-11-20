@@ -143,7 +143,7 @@ const VMDetails = () => {
         }
     }, [name]);
 
-    const changeVMState = async (state: 'PowerdOn' | 'PoweredOff' | 'Suspended') => {
+    const changeVMState = async (state: 'PoweredOn' | 'PoweredOff' | 'Suspended') => {
         try {
             setLoading(true);
             const data = await editVMState(name as string, state);
@@ -215,13 +215,13 @@ const VMDetails = () => {
                         Status: <div className='status'>{VM?.state}</div>
                     </div>
                     <div className='btnGroup'>
-                        <button className='btnTurnOn' onClick={() => changeVMState('PowerdOn')}>
+                        <button className='btnTurnOn' onClick={() => changeVMState('PoweredOn')}>
                             Turn on
                         </button>
                         <button className='btnSuspend' onClick={() => changeVMState('Suspended')}>
                             Suspend
                         </button>
-                        <button className='btnShutdown' onClick={() => changeVMState('Suspended')}>
+                        <button className='btnShutdown' onClick={() => changeVMState('PoweredOff')}>
                             Shutdown
                         </button>
                     </div>
