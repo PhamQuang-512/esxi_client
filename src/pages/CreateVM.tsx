@@ -33,6 +33,11 @@ const Form = styled.form`
             font-size: inherit;
         }
     }
+
+    .fileInput {
+        border: none;
+        padding: 0;
+    }
 `;
 
 const Button = styled.button`
@@ -56,12 +61,25 @@ const CreateVM = () => {
         numCPU: 0,
         ramGB: 0,
         storage: 0,
+        publicKey: '',
     });
     const [creating, setCreating] = useState(false);
     const navigate = useNavigate();
     const { user } = useContext(userContext);
 
     if (!user) return <Navigate to='/login' />;
+
+    const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const fr = new FileReader();
+            fr.readAsText(e.target.files[0]);
+            fr.onloadend = () => {
+                console.log(fr.result);
+                setVmInfo((pre) => ({ ...pre, publicKey: fr.result as string }));
+            };
+        }
+    };
+    console.log(vmInfo);
 
     const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -192,6 +210,18 @@ const CreateVM = () => {
                             disabled={creating}
                         />
                     </div>
+
+                    {vmInfo.os === 'Ubuntu' && (
+                        <div>
+                            <label htmlFor='publicKey'>Public key:</label>
+                            <input
+                                className='fileInput'
+                                type='file'
+                                accept='.pub,.txt'
+                                onChange={handleFile}
+                            />
+                        </div>
+                    )}
 
                     <Button className='btn' type='submit' disabled={creating}>
                         Submit

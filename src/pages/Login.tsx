@@ -6,7 +6,7 @@ import { AiOutlineUser } from 'react-icons/ai';
 import { RiLockPasswordLine } from 'react-icons/ri';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { userContext } from '../context/UserContext';
-import api from '../api/axios';
+import api, { isAxiosError } from '../api/axios';
 
 const Container = styled.div`
     width: 100%;
@@ -92,7 +92,6 @@ const Button = styled.button`
     font-size: 24px;
     color: white;
     border: none;
-    margin-top: 64px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -108,6 +107,7 @@ const Button = styled.button`
 const Login = () => {
     const [userName, setUserName] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const [errMessage, setErrMessage] = useState<string>('');
     const navigate = useNavigate();
     const { user, login } = useContext(userContext);
 
@@ -125,7 +125,14 @@ const Login = () => {
 
             login(response.data.username, response.data.accessToken);
             navigate('/');
-        } catch (error) {}
+        } catch (error) {
+            if (isAxiosError(error)) {
+                setErrMessage(error.response?.data.message);
+            } else {
+                setErrMessage('Unknow error!!!');
+            }
+            console.log(error);
+        }
     };
 
     return (
@@ -166,6 +173,8 @@ const Login = () => {
                             <RiLockPasswordLine />
                         </label>
                     </FormField>
+
+                    <p style={{ color: 'red', marginBottom: '8px' }}>{errMessage}</p>
 
                     <Button type='submit'>
                         <div>Login now</div>

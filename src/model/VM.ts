@@ -4,6 +4,7 @@ export interface VMCreate {
     numCPU: string | number;
     ramGB: string | number;
     storage: string | number;
+    publicKey: string;
 }
 
 export default interface VM extends VMCreate {
