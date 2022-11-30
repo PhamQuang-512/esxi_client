@@ -4,6 +4,7 @@ import { AiOutlineCloseCircle } from 'react-icons/ai';
 import { isAxiosError } from '../api/axios';
 import { editVMCPURam, editVMHardDisk } from '../api/vm';
 import Loading from './Loading';
+import VM from '../model/VM';
 
 const Container = styled.div`
     z-index: 100;
@@ -87,9 +88,11 @@ interface Props {
     ramGB: number;
     minStorage: number;
     close: () => void;
+    vm: VM;
+    setVM: React.Dispatch<VM>;
 }
 
-const VMEdit = ({ name, numCPU, ramGB, minStorage, close }: Props) => {
+const VMEdit = ({ name, numCPU, ramGB, minStorage, close, vm, setVM }: Props) => {
     const [hardDisk, setHardDisk] = useState<number>(minStorage);
     const [cpu_ram, setCpu_ram] = useState({
         numCPU: numCPU,
@@ -102,10 +105,15 @@ const VMEdit = ({ name, numCPU, ramGB, minStorage, close }: Props) => {
         e.preventDefault();
         try {
             setLoading(true);
-            if (hardDisk !== minStorage) await editVMHardDisk(name, hardDisk);
+            if (hardDisk !== minStorage) {
+                await editVMHardDisk(name, hardDisk);
+                setVM({ ...vm, storage: hardDisk });
+            }
 
-            if (cpu_ram.numCPU !== numCPU || cpu_ram.ramGB !== ramGB)
+            if (cpu_ram.numCPU !== numCPU || cpu_ram.ramGB !== ramGB) {
                 await editVMCPURam(name, cpu_ram.numCPU, cpu_ram.ramGB);
+                setVM({ ...vm, numCPU: cpu_ram.numCPU, ramGB: cpu_ram.ramGB });
+            }
 
             close();
         } catch (error) {

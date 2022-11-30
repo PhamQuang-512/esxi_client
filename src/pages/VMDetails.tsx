@@ -148,6 +148,7 @@ const VMDetails = () => {
         try {
             setLoading(true);
             const data = await editVMState(name as string, state);
+            setVM({ ...VM, state: state } as VM);
 
             console.log(data);
         } catch (error) {
@@ -200,6 +201,8 @@ const VMDetails = () => {
                                 ramGB={VM?.ramGB as number}
                                 minStorage={VM?.storage as number}
                                 close={() => setShowEdit(false)}
+                                vm={VM as VM}
+                                setVM={setVM}
                             />
                         </div>
                         {loading && <Loading />}
@@ -286,7 +289,15 @@ const VMDetails = () => {
                 )}
             </Info>
             <div style={{ float: 'right' }}>
-                <button className='editBtn' onClick={() => setShowEdit(true)}>
+                <button
+                    className='editBtn'
+                    onClick={() => {
+                        if (VM?.state === 'PoweredOff') {
+                            setErrMessage('');
+                            setShowEdit(true);
+                        } else setErrMessage('Virtual machine is on! Can not edit');
+                    }}
+                >
                     Edit virtual machine
                 </button>
 

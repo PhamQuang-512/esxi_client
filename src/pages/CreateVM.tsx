@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { createVM } from '../api/vm';
+import Loading from '../components/Loading';
 import { userContext } from '../context/UserContext';
 import { VMCreate } from '../model/VM';
 
@@ -226,7 +227,7 @@ const CreateVM = () => {
                     <Button className='btn' type='submit' disabled={creating}>
                         Submit
                     </Button>
-                    {creating && 'Creating...'}
+                    {creating && <Loading />}
                 </Form>
             </FormContainer>
         </Container>
