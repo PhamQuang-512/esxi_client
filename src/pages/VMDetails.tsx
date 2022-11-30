@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
 import styled from 'styled-components';
 import { AiOutlineCopy } from 'react-icons/ai';
@@ -120,6 +120,7 @@ const Info = styled.div`
 const VMDetails = () => {
     const ipRef = useRef<HTMLParagraphElement>(null);
     const { name } = useParams();
+    const navigate = useNavigate();
     const [VM, setVM] = useState<VM | null>(null);
     const [showEdit, setShowEdit] = useState<boolean>(false);
     const [errMessage, setErrMessage] = useState<string>('');
@@ -167,6 +168,7 @@ const VMDetails = () => {
             const data = await deleteVM(name as string);
 
             console.log(data);
+            navigate('/vm');
         } catch (error) {
             if (isAxiosError(error)) {
                 setErrMessage(error.response?.data.error);
@@ -262,6 +264,26 @@ const VMDetails = () => {
                 <div>
                     Storage: <p>{VM?.storage}GB</p>
                 </div>
+                {VM?.os === 'UBUNTU' && (
+                    <>
+                        <div>
+                            Default username: <p>uuser</p>
+                        </div>
+                        <div>
+                            Default password: <p> 123</p>
+                        </div>
+                    </>
+                )}
+                {VM?.os === 'WINDOW' && (
+                    <>
+                        <div>
+                            Default username: <p>Administrator</p>
+                        </div>
+                        <div>
+                            Default password: <p> Admin123</p>
+                        </div>
+                    </>
+                )}
             </Info>
             <div style={{ float: 'right' }}>
                 <button className='editBtn' onClick={() => setShowEdit(true)}>
