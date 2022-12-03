@@ -227,9 +227,9 @@ const CreateVM = () => {
                     <Button className='btn' type='submit' disabled={creating}>
                         Submit
                     </Button>
-                    {creating && <Loading />}
                 </Form>
             </FormContainer>
+            {creating && <Loading />}
         </Container>
     );
 };
