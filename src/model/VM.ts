@@ -8,7 +8,7 @@ export interface VMCreate {
 }
 
 export default interface VM extends VMCreate {
-    id: string;
+    id: string | null;
     state: string;
     ip: string;
 }

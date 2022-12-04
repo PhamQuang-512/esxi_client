@@ -105,15 +105,18 @@ const VMEdit = ({ name, numCPU, ramGB, minStorage, close, vm, setVM }: Props) =>
         e.preventDefault();
         try {
             setLoading(true);
+            let newVM = JSON.parse(JSON.stringify(vm));
+
             if (hardDisk !== minStorage) {
                 await editVMHardDisk(name, hardDisk);
-                setVM({ ...vm, storage: hardDisk });
+                newVM = { ...newVM, storage: hardDisk };
             }
 
             if (cpu_ram.numCPU !== numCPU || cpu_ram.ramGB !== ramGB) {
                 await editVMCPURam(name, cpu_ram.numCPU, cpu_ram.ramGB);
-                setVM({ ...vm, numCPU: cpu_ram.numCPU, ramGB: cpu_ram.ramGB });
+                newVM = { ...newVM, numCPU: cpu_ram.numCPU, ramGB: cpu_ram.ramGB };
             }
+            setVM(newVM);
 
             close();
         } catch (error) {

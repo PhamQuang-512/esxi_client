@@ -148,7 +148,7 @@ const VMDetails = () => {
         try {
             setLoading(true);
             const data = await editVMState(name as string, state);
-            setVM({ ...VM, state: state } as VM);
+            setVM(data);
 
             console.log(data);
         } catch (error) {
