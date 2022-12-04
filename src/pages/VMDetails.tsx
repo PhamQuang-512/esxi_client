@@ -205,7 +205,6 @@ const VMDetails = () => {
                                 setVM={setVM}
                             />
                         </div>
-                        {loading && <Loading />}
                     </div>
                 )}
             </CSSTransition>
@@ -309,6 +308,7 @@ const VMDetails = () => {
             <div>
                 <p style={{ color: 'red' }}>{errMessage}</p>
             </div>
+            {loading && <Loading />}
         </Container>
     );
 };
