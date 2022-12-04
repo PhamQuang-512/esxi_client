@@ -76,7 +76,7 @@ const CreateVM = () => {
             fr.readAsText(e.target.files[0]);
             fr.onloadend = () => {
                 console.log(fr.result);
-                setVmInfo((pre) => ({ ...pre, publicKey: fr.result as string }));
+                setVmInfo((pre) => ({ ...pre, publicKey: (fr.result as string).trim() }));
             };
         }
     };

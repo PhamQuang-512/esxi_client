@@ -49,7 +49,7 @@ export const editVMState = async (name: string, state: 'PoweredOn' | 'PoweredOff
 
 export const editVMHardDisk = async (name: string, storage: number) => {
     const response = await api.put(
-        `/VMs/${name}`,
+        `/VMs/${name}/hard_disk`,
         {
             storage,
         },
@@ -65,7 +65,7 @@ export const editVMHardDisk = async (name: string, storage: number) => {
 
 export const editVMCPURam = async (name: string, numCPU: number, ramGB: number) => {
     const response = await api.put(
-        `/VMs/${name}`,
+        `/VMs/${name}/CPU_RAM`,
         {
             numCPU,
             ramGB,
