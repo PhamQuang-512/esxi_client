@@ -94,16 +94,6 @@ const Home = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr key={2}>
-                            <td>
-                                <Link to={`/vm/${'hihi'}`}>{'hihi'}</Link>
-                            </td>
-                            <td>{'PowerON'}</td>
-                            <td>{'Ubuntu'}</td>
-                            <td>{4}</td>
-                            <td>{8}GB</td>
-                            <td>{64}GB</td>
-                        </tr>
                         {VMs.map((vm) => {
                             return (
                                 <tr key={vm.id}>
